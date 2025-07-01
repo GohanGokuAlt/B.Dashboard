@@ -8,7 +8,7 @@
         let db = {
             config: JSON.parse(localStorage.getItem('config')) || { darkMode: true },
             businesses: JSON.parse(localStorage.getItem('businesses')) || [],
-            staffKeys: JSON.parse(localStorage.getItem('staffKeys')) || ['admin123'],
+            staffKeys: JSON.parse(localStorage.getItem('staffKeys')) || ['your-new-password'],
             currentUser: JSON.parse(localStorage.getItem('currentUser')) || null
         };
 
@@ -62,7 +62,7 @@
             list.innerHTML = '';
             db.businesses.forEach(b => {
                 const item = document.createElement('div');
-                item.className = 'bg-white dark:bg-gray-700 rounded-lg shadow p-4 hover:shadow-md transition-shadow';
+                item.className = 'bg-white dark:bg-gray-700 rounded-xl border-l-4 border-blue-400 shadow p-4 transition-all hover:scale-105';
                 item.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="font-bold text-lg text-gray-900 dark:text-gray-100">${b.name}</h3>
@@ -115,7 +115,7 @@
                     <div>
                         <label class="block text-sm mb-1">Map Location</label>
                         <select id="editMap" class="w-full p-2 border rounded">
-                            ${['City 1','City 2','Mountains','Desert','Province'].map(loc => 
+                            ${['Downtown','Uptown','Highlands','Oasis','Countryside'].map(loc => 
                                 `<option ${loc === business.map ? 'selected' : ''}>${loc}</option>`
                             ).join('')}
                         </select>
@@ -181,7 +181,7 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </head>
-<body class="dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+<body class="dark:bg-gray-800 text-gray-900 dark:text-gray-200 transition-colors duration-200">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <!-- Auth Modal (now top right auth button) -->
     <div id="authSection" class="fixed top-4 right-4 z-50">
@@ -227,7 +227,7 @@
                     <option>Desert</option>
                     <option>Province</option>
                 </select>
-                <button onclick="addBusiness()" class="bg-green-500 text-white p-2 rounded">Add Business</button>
+                <button onclick="addBusiness()" class="bg-purple-600 text-white p-2 rounded-full">Add Business</button>
             </div>
         </div>
 
@@ -238,4 +238,4 @@
         </div>
     </div>
 </body>
-  </html>
+</html>
