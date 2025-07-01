@@ -129,7 +129,7 @@
         <header class="bg-blue-600 text-white p-4 shadow-md">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold flex items-center">
-                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b2d95f6a-2fea-4b3d-b83e-23c37c7ce06d.png" alt="Land Management Bureau logo shield icon" class="mr-2 rounded-md">
+                    <img src="[YOUR_IMAGE_URL_HERE]" alt="Land Management Bureau logo" class="mr-2 rounded-md h-10 w-10 object-contain">
                     Land Management Bureau
                 </h1>
                 <button id="adminBtn" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded-md flex items-center">
@@ -374,6 +374,21 @@
             } else {
                 alert("Incorrect admin key!");
             }
+        }
+
+        function saveNewAdminKey() {
+            const newKey = document.getElementById('adminKeyInput').value.trim();
+            if (newKey && confirm("Are you sure you want to change the admin key?")) {
+                database.adminKey = newKey;
+                saveToLocalStorage();
+                document.getElementById('currentKeyDisplay').textContent = newKey;
+                alert("Admin key updated successfully!");
+            }
+        }
+
+        function copyKey() {
+            navigator.clipboard.writeText(database.adminKey);
+            alert("Admin key copied to clipboard");
         }
 
         // Business CRUD operations
@@ -703,4 +718,3 @@
     </script>
 </body>
 </html>
-
