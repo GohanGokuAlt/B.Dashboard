@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CPRP Land Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Enhanced localStorage database with editing capabilities
+        let db = {
+            config: JSON.parse(localStorage.getItem('config')) || { darkMode: true },
+            businesses: JSON.parse(localStorage.getItem('businesses')) || [],
+            staffKeys: JSON.parse(localStorage.getItem('staffKeys')) || ['admin123'],
+            currentUser: JSON.parse(localStorage.getItem('currentUser')) || null
+        };
+
+        // Initialize on load
+        function init() {
+            if (!db.currentUser) showAuthModal();
+            else loadDashboard();
+        }
+
+        // Auth functions
+        function auth() {
+            const key = document.getElementById('accessKey').value;
+            if (db.staffKeys.includes(key)) {
+                db.currentUser = { key: key };
+                localStorage.setItem('currentUser', JSON.stringify(db.currentUser));
+                loadDashboard();
+            } else {
+                alert('Invalid key');
+            }
+        }
+
+        // Dashboard functions
+        function loadDashboard() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            updateBusinessList();
+        }
+
+        function addBusiness() {
+            const name = document.getElementById('businessName').value;
+            const owner = document.getElementById('businessOwner').value;
+            const map = document.getElementById('businessMap').value;
+            
+            const newBusiness = {
+                id: Date.now(),
+                name,
+                owner,
+                map,
+                registeredDate: new Date().toISOString(),
+                renewalDate: new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+                status: 'active'
+            };
+            
+            db.businesses.push(newBusiness);
+            localStorage.setItem('businesses', JSON.stringify(db.businesses));
+            updateBusinessList();
+        }
+
+        function updateBusinessList() {
+            const list = document.getElementById('businessList');
+            list.innerHTML = '';
+            db.businesses.forEach(b => {
+                const item = document.createElement('div');
+                item.className = 'bg-white dark:bg-gray-700 rounded-lg shadow p-4 hover:shadow-md transition-shadow';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg text-gray-900 dark:text-gray-100">${b.name}</h3>
+                        <span class="text-xs px-2 py-1 rounded-full ${getMapColor(b.map)}">${b.map}</span>
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-300 mb-2">Owner: ${b.owner}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Registered: ${formatDate(b.registeredDate)}</div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm ${getStatusColor(b)}">Renews: ${new Date(b.renewalDate).toLocaleDateString()}</span>
+                        <div class="flex gap-2">
+                            <button onclick="renewBusiness(${b.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors">Renew</button>
+                            ${db.currentUser ? `
+                            <button onclick="editBusiness(${b.id})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors">Edit</button>
+                            <button onclick="deleteBusiness(${b.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors">Delete</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Business management functions
+        function renewBusiness(id) {
+            const business = db.businesses.find(b => b.id === id);
+            business.renewalDate = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+            localStorage.setItem('businesses', JSON.stringify(db.businesses));
+            updateBusinessList();
+            alert('Business renewed!');
+        }
+
+        // Show/hide UI elements
+        function showAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.contains('hidden') ? modal.classList.remove('hidden') : modal.classList.add('hidden');
+        }
+
+        function editBusiness(id) {
+            const business = db.businesses.find(b => b.id === id);
+            const editForm = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm mb-1">Business Name</label>
+                        <input id="editName" value="${business.name}" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Owner</label>
+                        <input id="editOwner" value="${business.owner}" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Map Location</label>
+                        <select id="editMap" class="w-full p-2 border rounded">
+                            ${['City 1','City 2','Mountains','Desert','Province'].map(loc => 
+                                `<option ${loc === business.map ? 'selected' : ''}>${loc}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Registered Date</label>
+                        <input type="date" id="editDate" value="${business.registeredDate.split('T')[0]}" class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            `;
+            
+            if (confirm('Edit business details?\n\n' + editForm)) {
+                business.name = document.getElementById('editName').value;
+                business.owner = document.getElementById('editOwner').value;
+                business.map = document.getElementById('editMap').value;
+                business.registeredDate = new Date(document.getElementById('editDate').value).toISOString();
+                localStorage.setItem('businesses', JSON.stringify(db.businesses));
+                updateBusinessList();
+            }
+        }
+
+        function deleteBusiness(id) {
+            if(confirm('Are you sure you want to delete this business?')) {
+                db.businesses = db.businesses.filter(b => b.id !== id);
+                localStorage.setItem('businesses', JSON.stringify(db.businesses));
+                updateBusinessList();
+            }
+        }
+
+        function toggleDarkMode() {
+            db.config.darkMode = !db.config.darkMode;
+            localStorage.setItem('config', JSON.stringify(db.config));
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function getMapColor(map) {
+            const mapColors = {
+                'City 1': 'bg-blue-100 text-blue-800',
+                'City 2': 'bg-purple-100 text-purple-800',
+                'Mountains': 'bg-green-100 text-green-800',
+                'Desert': 'bg-yellow-100 text-yellow-800',
+                'Province': 'bg-pink-100 text-pink-800'
+            };
+            return mapColors[map] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusColor(business) {
+            const now = new Date();
+            const renewalDate = new Date(business.renewalDate);
+            const daysLeft = Math.floor((renewalDate - now) / (1000 * 60 * 60 * 24));
+            
+            if (daysLeft < 0) return 'text-red-600 font-bold';
+            if (daysLeft <= 3) return 'text-yellow-600';
+            return 'text-green-600';
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</head>
+<body class="dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- Auth Modal (now top right auth button) -->
+    <div id="authSection" class="fixed top-4 right-4 z-50">
+        <button id="authBtn" onclick="showAuthModal()" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <i class="fas fa-key"></i> Admin
+        </button>
+    </div>
+    
+    <div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4">Staff Login</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-1">Access Key</label>
+                    <input id="accessKey" type="password" class="w-full p-2 border rounded" placeholder="Enter key">
+                </div>
+                <button onclick="auth()" class="w-full bg-blue-500 text-white p-2 rounded">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="flex flex-col h-screen bg-gray-50 dark:bg-gray-800">
+        <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+            <h1 class="text-2xl font-bold">Land Management Bureau</h1>
+            <div class="flex gap-4">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas ${db.config.darkMode ? 'fa-sun' : 'fa-moon'}"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Add Business Form (admin only) -->
+        <div id="adminForm" class="${db.currentUser ? 'block' : 'hidden'} bg-white dark:bg-gray-700 p-6 shadow-sm sticky top-0 z-10">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Business Registration Form</h2>
+            <div class="flex flex-wrap gap-4 items-end">
+                <input id="businessName" type="text" placeholder="Business Name" class="p-2 border rounded">
+                <input id="businessOwner" type="text" placeholder="Owner Name" class="p-2 border rounded">
+                <select id="businessMap" class="p-2 border rounded">
+                    <option>City 1</option>
+                    <option>City 2</option>
+                    <option>Mountains</option>
+                    <option>Desert</option>
+                    <option>Province</option>
+                </select>
+                <button onclick="addBusiness()" class="bg-green-500 text-white p-2 rounded">Add Business</button>
+            </div>
+        </div>
+
+        <!-- Business List -->
+        <div class="flex-1 overflow-auto p-6">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Active Businesses</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="businessList"></div>
+        </div>
+    </div>
+</body>
+  </html>
