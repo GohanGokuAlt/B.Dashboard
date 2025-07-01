@@ -129,7 +129,7 @@
         <header class="bg-blue-600 text-white p-4 shadow-md">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold flex items-center">
-                    <img src="[YOUR_IMAGE_URL_HERE]" alt="Land Management Bureau logo" class="mr-2 rounded-md h-10 w-10 object-contain">
+                    <img src="https://lmb.gov.ph/wp-content/uploads/2023/05/Land-Management-logo.png" alt="Land Management Bureau logo" class="mr-2 rounded-md h-10 w-10 object-contain">
                     Land Management Bureau
                 </h1>
                 <button id="adminBtn" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded-md flex items-center">
@@ -207,7 +207,7 @@
                 <div class="bg-white rounded-lg shadow-md p-4">
                     <div class="flex justify-between items-center">
                         <div>
-                            <p class="text-gray-500 text-sm">Revenue (Monthly)</p>
+                            <p class="text-gray-500 text-sm">Revenue </p>
                             <h3 class="text-2xl font-bold">240k</h3>
                         </div>
                         <i class="fas fa-coins text-purple-500 text-xl"></i>
@@ -253,7 +253,7 @@
         <!-- Footer -->
         <footer class="bg-gray-100 p-4 border-t">
             <div class="container mx-auto text-center text-gray-600">
-                <p>Land Management Bureau © 2023 - All Rights Reserved</p>
+                <p>Land Management Bureau CPM RP © 2023 - All Rights Reserved</p>
             </div>
         </footer>
     </div>
@@ -488,7 +488,7 @@
         }
 
         function renewBusiness(id) {
-            if (confirm("Renew this business for 150k?")) {
+            if (confirm("Renew this business?")) {
                 updateBusiness(id, {
                     renewalPending: false,
                     status: "active",
