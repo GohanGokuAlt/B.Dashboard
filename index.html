@@ -1619,6 +1619,55 @@
             }
             
             // Rest of the form submission logic...
+         <!-- FIXED CODE SNIPPET -->
+<!-- 1. Add this function below your current <script> block or integrate into your existing logic -->
+<script>
+  function logoutUser() {
+    currentUser = null;
+    document.getElementById('loginBtnText').textContent = 'Admin';
+    adminPanelModal.style.display = 'none';
+    addBusinessBtn.classList.add('hidden');
+    adminActions?.classList.add('hidden'); // Hide admin buttons in view modal
+
+    // Optionally clear modals, reset views
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.style.display = 'none';
+    });
+
+    // Clear admin/employee panel references if shown
+    filterBusinesses();
+    renderBusinessTable();
+  }
+
+  // Hook logout function to button
+  document.getElementById('signOutBtn').addEventListener('click', logoutUser);
+</script>
+
+<!-- 2. Add this button somewhere visible in your admin or employee panels -->
+<!-- (you already have it inside the adminPanelModal, but ensure this part is added to both if needed) -->
+<button id="signOutBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium">
+  <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+</button>
+
+<!-- 3. Optionally if you want to support employee sign-out from the same button, add logic like this -->
+<script>
+  function updateLoginUIOnLogout() {
+    // Reset login button and views
+    document.getElementById('loginBtnText').textContent = 'Admin';
+    addBusinessBtn.classList.add('hidden');
+    adminActions?.classList.add('hidden');
+    adminPanelModal.style.display = 'none';
+    adminLoginModal.style.display = 'none';
+  }
+
+  function logoutUser() {
+    currentUser = null;
+    updateLoginUIOnLogout();
+    filterBusinesses();
+    renderBusinessTable();
+  }
+</script>
+ 
         }
     </script>
 </body>
